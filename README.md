@@ -24,7 +24,7 @@ tests/
 ## Progress
 
 - [x] Phase 1: project setup, Money (integer minor units), domain types
-- [ ] Phase 2: refill lifecycle (state machine)
+- [x] Phase 2: refill lifecycle (state machine, optimistic locking)
 - [ ] Phase 3: choosing who buys
 - [ ] Phase 4: timeouts and reassignment
 - [ ] Phase 5: budget check

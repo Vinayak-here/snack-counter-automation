@@ -40,6 +40,11 @@ export interface Refill {
   id: string;
   officeId: OfficeId;
   status: RefillStatus;
+  /**
+   * Optimistic-locking counter: 1 when created, +1 on every save.
+   * A save only succeeds if nobody else saved since you read it.
+   */
+  version: number;
   reportedBy: string;
   reportedAt: Date;
 
@@ -58,4 +63,5 @@ export interface Refill {
 
   hrClaimId?: string;
   reimbursedAt?: Date;
+  rejectionReason?: string;   // set when HR rejects the claim
 }
