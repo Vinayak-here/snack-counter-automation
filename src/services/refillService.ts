@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
   AlreadyAskedError,
+  BudgetExceededError,
   DuplicateActiveRefillError,
   NotAssigneeError,
   RefillAlreadyTakenError,
@@ -8,7 +9,8 @@ import {
   ValidationError,
   VersionConflictError,
 } from "../domain/error.js";
-import { CurrencyMismatchError, type Money } from "../domain/money.js";
+import { budgetStatus, type OverBudgetPolicy } from "../domain/budget.js";
+import { CurrencyMismatchError, format, isGreaterThan, type Money } from "../domain/money.js";
 import { assertTransition } from "../domain/refillStateMachine.js";
 import type { Office, OfficeId, Refill } from "../domain/types.js";
 import { systemClock, type Clock } from "../ports/clock.js";
@@ -40,6 +42,7 @@ export class RefillService {
     private readonly offices: Record<OfficeId, Office>,
     private readonly clock: Clock = systemClock,
     private readonly newId: () => string = randomUUID,
+    private readonly overBudgetPolicy: OverBudgetPolicy = "FLAG",
   ) {}
 
   /**
@@ -143,17 +146,32 @@ export class RefillService {
     };
   }
 
-  /** The person who accepted has bought the snacks and uploaded a receipt. */
+  /**
+   * The person who accepted has bought the snacks and uploaded a receipt.
+   * Budget (Phase 5): the money is already spent, so by default an
+   * over-budget purchase is recorded and flagged for approval ("FLAG").
+   * With "BLOCK" it is refused instead.
+   */
   async recordPurchase(refillId: string, employeeId: string, input: PurchaseInput): Promise<Refill> {
     if (input.amount.amountMinor <= 0) throw new ValidationError("Purchase amount must be positive");
     if (input.receiptUrl.trim() === "") throw new ValidationError("A receipt is required for the HR claim");
 
+    // This month's spend so far. Safe to read outside update(): only one
+    // refill per office can be awaiting purchase, so no other purchase for
+    // this office can land in between.
+    const { officeId } = await this.get(refillId);
+    const office = this.offices[officeId];
+    const budget = budgetStatus(office, await this.repo.listByOffice(officeId), this.clock.now());
+
     return this.update(refillId, (r) => {
       assertTransition(r.status, "PURCHASED");
       if (r.assignee !== employeeId) throw new NotAssigneeError(r.id, employeeId);
-      const officeCurrency = this.offices[r.officeId].currency;
-      if (input.amount.currency !== officeCurrency) {
-        throw new CurrencyMismatchError(input.amount.currency, officeCurrency);
+      if (input.amount.currency !== office.currency) {
+        throw new CurrencyMismatchError(input.amount.currency, office.currency);
+      }
+      const overBudget = isGreaterThan(input.amount, budget.remaining);
+      if (overBudget && this.overBudgetPolicy === "BLOCK") {
+        throw new BudgetExceededError(r.officeId, format(budget.remaining), format(input.amount));
       }
       return {
         ...r,
@@ -163,6 +181,7 @@ export class RefillService {
           items: [...input.items],
           receiptUrl: input.receiptUrl,
           purchasedAt: this.clock.now(),
+          overBudget,
         },
       };
     });

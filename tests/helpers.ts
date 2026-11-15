@@ -5,8 +5,8 @@ import type { Office, OfficeId } from "../src/domain/types.js";
 import { RefillService } from "../src/services/refillService.js";
 
 export const OFFICES: Record<OfficeId, Office> = {
-  OSLO: { id: "OSLO", name: "Oslo", currency: "NOK", monthlyBudget: money(6000, "NOK") },
-  BLR: { id: "BLR", name: "Bengaluru", currency: "INR", monthlyBudget: money(15000, "INR") },
+  OSLO: { id: "OSLO", name: "Oslo", currency: "NOK", monthlyBudget: money(6000, "NOK"), timeZone: "Europe/Oslo" },
+  BLR: { id: "BLR", name: "Bengaluru", currency: "INR", monthlyBudget: money(15000, "INR"), timeZone: "Asia/Kolkata" },
 };
 
 /** A fresh, isolated world for each test: empty storage, fake clock, readable ids. */

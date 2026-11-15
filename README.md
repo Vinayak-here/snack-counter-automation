@@ -27,6 +27,6 @@ tests/
 - [x] Phase 2: refill lifecycle (state machine, optimistic locking)
 - [x] Phase 3: choosing who buys (fair rotation)
 - [x] Phase 4: timeouts and reassignment
-- [ ] Phase 5: budget check
+- [x] Phase 5: budget check
 - [ ] Phase 6: fake chat / HR + monthly report
 - [ ] Phase 7: design document

@@ -29,7 +29,7 @@ function boughtBy(buyer: string, daysAgo: number): Refill {
     reportedAt: at,
     assignee: buyer,
     declinedOrTimedOut: [],
-    purchase: { amount: money(400, "NOK"), items: [], receiptUrl: "r", purchasedAt: at },
+    purchase: { amount: money(400, "NOK"), items: [], receiptUrl: "r", purchasedAt: at, overBudget: false },
   };
 }
 

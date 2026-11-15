@@ -7,6 +7,8 @@ export interface Office {
   name: string;
   currency: Currency;      // the office's budget currency
   monthlyBudget: Money;
+  /** IANA time zone, e.g. "Europe/Oslo". Decides which month a purchase belongs to. */
+  timeZone: string;
 }
 
 /** Where a person is on a given day. Only "IN_OFFICE" people can be asked to buy. */
@@ -59,6 +61,8 @@ export interface Refill {
     items: string[];         // which snacks were bought
     receiptUrl: string;
     purchasedAt: Date;
+    /** True if this purchase took the office over its monthly budget (Phase 5). */
+    overBudget: boolean;
   };
 
   hrClaimId?: string;

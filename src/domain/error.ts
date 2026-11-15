@@ -61,3 +61,11 @@ export class ValidationError extends Error {
     this.name = "ValidationError";
   }
 }
+
+/** The purchase would take the office over its monthly budget, and the policy is to block. */
+export class BudgetExceededError extends Error {
+  constructor(officeId: string, remaining: string, attempted: string) {
+    super(`Office ${officeId} has ${remaining} left this month; purchase of ${attempted} blocked`);
+    this.name = "BudgetExceededError";
+  }
+}
