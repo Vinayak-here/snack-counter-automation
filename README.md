@@ -28,5 +28,5 @@ tests/
 - [x] Phase 3: choosing who buys (fair rotation)
 - [x] Phase 4: timeouts and reassignment
 - [x] Phase 5: budget check
-- [ ] Phase 6: fake chat / HR + monthly report
+- [x] Phase 6: fake chat / HR + monthly report
 - [ ] Phase 7: design document

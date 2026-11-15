@@ -20,7 +20,7 @@ export function monthKey(at: Date, timeZone: string): string {
  * Counted at purchase time (not when HR pays), so the budget reacts at once.
  * A rejected claim is not company money, so it doesn't count.
  */
-function countsAsSpend(r: Refill): boolean {
+export function countsAsSpend(r: Refill): boolean {
   return r.purchase !== undefined && r.status !== "CLAIM_REJECTED";
 }
 
