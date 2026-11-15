@@ -113,16 +113,34 @@ export class RefillService {
   async decline(refillId: string, employeeId: string): Promise<Refill> {
     return this.update(refillId, (r) => {
       if (r.assignee !== employeeId) throw new NotAssigneeError(r.id, employeeId);
-      assertTransition(r.status, "OPEN");
-      return {
-        ...r,
-        status: "OPEN",
-        assignee: undefined,
-        assignedAt: undefined,
-        acceptedAt: undefined,
-        declinedOrTimedOut: [...r.declinedOrTimedOut, employeeId],
-      };
+      return this.backToOpen(r, employeeId);
     });
+  }
+
+  /**
+   * Time ran out for the current assignee (Phase 4). Same effect as a decline,
+   * but only if the refill is STILL in `expectedStatus` with that assignee.
+   * If they accepted or bought at the last second, nothing happens:
+   * the timeout lost the race, and that's the right outcome.
+   */
+  async expire(refillId: string, employeeId: string, expectedStatus: "ASSIGNED" | "ACCEPTED"): Promise<Refill> {
+    return this.update(refillId, (r) => {
+      if (r.status !== expectedStatus || r.assignee !== employeeId) return null; // moved on, leave it
+      return this.backToOpen(r, employeeId);
+    });
+  }
+
+  /** Shared by decline and expire: back to OPEN, and never ask this person again for this refill. */
+  private backToOpen(r: Refill, employeeId: string): Refill {
+    assertTransition(r.status, "OPEN");
+    return {
+      ...r,
+      status: "OPEN",
+      assignee: undefined,
+      assignedAt: undefined,
+      acceptedAt: undefined,
+      declinedOrTimedOut: [...r.declinedOrTimedOut, employeeId],
+    };
   }
 
   /** The person who accepted has bought the snacks and uploaded a receipt. */

@@ -26,7 +26,7 @@ tests/
 - [x] Phase 1: project setup, Money (integer minor units), domain types
 - [x] Phase 2: refill lifecycle (state machine, optimistic locking)
 - [x] Phase 3: choosing who buys (fair rotation)
-- [ ] Phase 4: timeouts and reassignment
+- [x] Phase 4: timeouts and reassignment
 - [ ] Phase 5: budget check
 - [ ] Phase 6: fake chat / HR + monthly report
 - [ ] Phase 7: design document
