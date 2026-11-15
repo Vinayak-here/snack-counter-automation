@@ -25,6 +25,10 @@ export class InMemoryRefillRepository implements RefillRepository {
       .map((r) => structuredClone(r));
   }
 
+  async listAll(): Promise<Refill[]> {
+    return [...this.refills.values()].map((r) => structuredClone(r));
+  }
+
   async create(refill: Omit<Refill, "version">): Promise<Refill> {
     for (const r of this.refills.values()) {
       if (r.officeId === refill.officeId && isAwaitingPurchase(r.status)) {
